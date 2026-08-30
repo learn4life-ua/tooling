@@ -11,6 +11,7 @@
 | Understand Anything | https://github.com/labolado/understand-anything | ✅ 2026-08-28 | ⏳ | ⏳ if applicable | ⏳ | TESTING |
 | Diagram Design | https://github.com/cathrynlavery/diagram-design | ✅ 2026-08-28 | ⏳ | ⏳ | ⏳ | TESTING |
 | Archify | https://github.com/tt-a1i/archify | ✅ 2026-08-30 | ✅ 2026-08-30, з обмеженнями | ⏳ local scan unavailable in current shell | ⚠️ upstream CI passed; local test pending | TESTING |
+| GPT-Image2 Style Library | https://github.com/freestylefly/awesome-gpt-image-2/tree/main/agents/skills/gpt-image-2-style-library | ✅ 2026-08-30 | ✅ 2026-08-30, scoped skill only | ⏳ local scan unavailable in current shell | ⏳ | TESTING |
 
 ## Archify — manual review 2026-08-30
 
@@ -56,6 +57,37 @@
 - `--repo-root` — тільки корінь конкретного репозиторію, який аналізується;
 - `--open`, preview і visual-check — лише коли вони реально потрібні;
 - не передавати secrets, `.env`, ключі або приватні репозиторії без окремого review.
+
+## GPT-Image2 Style Library — manual review 2026-08-30
+
+**Scope:** перевіряється тільки `agents/skills/gpt-image-2-style-library`, а не весь репозиторій `awesome-gpt-image-2`.
+
+**Перевірено:** `SKILL.md`, skill `package.json`, `bin/install.mjs`, `agents/openai.yaml`, `references/style-library.md`, кореневий `package.json` для відокремлення залежностей сайту від самого skill.
+
+**Позитивне:**
+
+- сам skill — окремий npm package `gpt-image-2-style-library` версії `1.0.4`;
+- у package немає `dependencies`, `preinstall`, `install` або `postinstall` scripts;
+- installer не завантажує мережевий код: він лише копіює `SKILL.md`, `agents`, `assets`, `references` у вибраний локальний каталог skills;
+- skill не просить доступу до secrets, API keys або приватних репозиторіїв;
+- основна робота — вибір шаблонів, style tags, scene tags, прикладів і формування структурованих image prompts;
+- reference library має корисні обмеження: читабельний текст, явна ієрархія, aspect ratio, negative details, контроль кількості модулів і уникання clutter.
+
+**Ризики / обмеження:**
+
+1. Весь root repo містить сайт із `@supabase/supabase-js`, Google Analytics, Stripe, Alipay та іншими веб-залежностями. Їх не потрібно встановлювати для нашого використання skill.
+2. Root script `install:skill` і package CLI обидва можуть видаляти наявну папку `gpt-image-2-style-library` перед копіюванням нової версії. Це очікувана поведінка installer, але запускати лише свідомо.
+3. Skill орієнтується саме на GPT-Image2 terminology. Ми використовуємо його як методику структурованого image prompting і бібліотеку стилів, а не як вимогу до конкретного зовнішнього API.
+4. Частина source library походить із curated/reverse-engineered examples; готові промпти не копіюємо механічно, а адаптуємо під власні задачі та наш візуальний стандарт.
+5. Повний SkillSpector scan і controlled runtime test ще не виконані, тому статус залишається `TESTING`.
+
+**Наше правило використання до APPROVED:**
+
+- використовувати тільки scoped skill `agents/skills/gpt-image-2-style-library`;
+- не запускати root website stack і не встановлювати root dependencies заради style library;
+- застосовувати бібліотеку як reference + prompt-structure layer;
+- наш Learn4Life UX/UI standard та конкретні вимоги до бренду/проєкту мають пріоритет над шаблонами бібліотеки;
+- не копіювати community case буквально, якщо він не відповідає задачі або стилю проєкту.
 
 ## Позначення
 
