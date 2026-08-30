@@ -19,7 +19,8 @@
 | Addy Osmani Agent Skills | https://github.com/addyosmani/agent-skills | addyosmani | Engineering workflow | TESTING | Офіційний репозиторій автора підтверджений; використовувати вибрані skills після перевірки |
 | NVIDIA SkillSpector | https://github.com/NVIDIA/SkillSpector | NVIDIA | Security gate для сторонніх skills | TESTING | Офіційний NVIDIA repo підтверджений; сам security-інструмент теж перевіряємо перед довірою |
 | Understand Anything | https://github.com/labolado/understand-anything | labolado | Codebase intelligence | TESTING | Основний кандидат для розуміння великих проєктів; повний security review ще не завершений |
-| Diagram Design | https://github.com/cathrynlavery/diagram-design | cathrynlavery | Діаграми й навчальні візуалізації | TESTING | Не замінює Effective HTML; повний security review ще не завершений |
+| Diagram Design | https://github.com/cathrynlavery/diagram-design | cathrynlavery | Діаграми й навчальні візуалізації | TESTING | Відповідає за композицію, ієрархію та читабельність схем; повний security review ще не завершений |
+| Archify | https://github.com/tt-a1i/archify | tt-a1i | System architecture & technical diagrams | TESTING | Для architecture, workflow, sequence, data flow і lifecycle/state; доповнює Diagram Design технічним рендерингом та аналізом систем; повний security review ще не завершений |
 
 ## Advanced / optional
 
