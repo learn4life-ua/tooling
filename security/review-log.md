@@ -10,7 +10,7 @@
 | NVIDIA SkillSpector | https://github.com/NVIDIA/SkillSpector | ✅ 2026-08-28 | ⏳ | n/a - scanner itself | ⏳ | TESTING |
 | Understand Anything | https://github.com/labolado/understand-anything | ✅ 2026-08-28 | ⏳ | ⏳ if applicable | ⏳ | TESTING |
 | Diagram Design | https://github.com/cathrynlavery/diagram-design | ✅ 2026-08-28 | ⏳ | ⏳ | ⏳ | TESTING |
-| Archify | https://github.com/tt-a1i/archify | ✅ 2026-08-30 | ✅ 2026-08-30, з обмеженнями | ⏳ | ⏳ | TESTING |
+| Archify | https://github.com/tt-a1i/archify | ✅ 2026-08-30 | ✅ 2026-08-30, з обмеженнями | ⏳ local scan unavailable in current shell | ⚠️ upstream CI passed; local test pending | TESTING |
 
 ## Archify — manual review 2026-08-30
 
@@ -32,7 +32,21 @@
 2. CLI має `brands capture <url>` для завантаження brand identity з URL. Не використовувати на довільних або недовірених URL без окремої потреби.
 3. `visual-check`, preview/open та частина workflow запускають зовнішні локальні процеси (браузер/Chromium, системний opener, Git). Це очікувана функціональність, але потребує контрольованого середовища.
 4. Repository evidence читає локальний Git checkout і запускає `git` над явно переданим `--repo-root`. Не давати йому ширший filesystem scope, ніж потрібний репозиторій.
-5. Повний SkillSpector scan і контрольований runtime test ще не виконані, тому статус не підвищуємо до `APPROVED`.
+5. Повний SkillSpector scan і локальний контрольований runtime test ще не виконані, тому статус не підвищуємо до `APPROVED`.
+
+**Upstream runtime evidence 2026-08-30:**
+
+- актуальний `main` commit: `39a21139a4661203888049d44e3b8c0da13fa576`;
+- GitHub Actions CI завершився зі статусом `success`;
+- пройдені тести Node 18, 20, 22 і 24;
+- пройдені package-smoke тести на Ubuntu, macOS і Windows;
+- пройдені `zip-freshness` та WebM/Chrome integration checks;
+- це підтверджує працездатність upstream-пакета, але не замінює наш власний SkillSpector scan і локальний controlled test.
+
+**Обмеження поточного середовища:**
+
+- shell-середовище цієї перевірки не має DNS-доступу до `github.com`, тому `git clone` NVIDIA/SkillSpector і Archify завершився помилкою `Could not resolve host: github.com`;
+- через це фактичний локальний запуск `skillspector scan ...` у цій сесії не виконаний і чесно залишається `⏳`.
 
 **Наше правило використання до APPROVED:**
 
