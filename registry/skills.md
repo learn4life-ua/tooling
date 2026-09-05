@@ -22,6 +22,7 @@
 | Diagram Design | https://github.com/cathrynlavery/diagram-design | cathrynlavery | Діаграми й навчальні візуалізації | TESTING | Відповідає за композицію, ієрархію та читабельність схем; повний security review ще не завершений |
 | Archify | https://github.com/tt-a1i/archify | tt-a1i | System architecture & technical diagrams | TESTING | Для architecture, workflow, sequence, data flow і lifecycle/state; доповнює Diagram Design технічним рендерингом та аналізом систем |
 | GPT-Image2 Style Library | https://github.com/freestylefly/awesome-gpt-image-2/tree/main/agents/skills/gpt-image-2-style-library | freestylefly | Image prompting & visual style system | TESTING | Використовуємо тільки окремий skill, не весь сайт/repo; шаблони для poster, infographic, UI, illustration, character, brand тощо |
+| video-shotcraft | https://github.com/Vincentwei1021/video-shotcraft | Vincentwei1021 | AI video / motion design / Remotion | TESTING | Джерело підтверджене; skill заявляє підтримку Codex і Claude Code. Перед встановленням потрібні повний security review, перевірка SKILL.md, package/install scripts та контрольований тест |
 
 ## Advanced / optional
 
