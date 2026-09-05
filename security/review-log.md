@@ -12,6 +12,7 @@
 | Diagram Design | https://github.com/cathrynlavery/diagram-design | ✅ 2026-08-28 | ⏳ | ⏳ | ⏳ | TESTING |
 | Archify | https://github.com/tt-a1i/archify | ✅ 2026-08-30 | ✅ 2026-08-30, з обмеженнями | ⏳ local scan unavailable in current shell | ⚠️ upstream CI passed; local test pending | TESTING |
 | GPT-Image2 Style Library | https://github.com/freestylefly/awesome-gpt-image-2/tree/main/agents/skills/gpt-image-2-style-library | ✅ 2026-08-30 | ✅ 2026-08-30, scoped skill only | ⏳ local scan unavailable in current shell | ⏳ | TESTING |
+| video-shotcraft | https://github.com/Vincentwei1021/video-shotcraft | ✅ 2026-09-05 | ✅ 2026-09-05, з обмеженнями | ⏳ | ⏳ | TESTING |
 
 ## Archify — manual review 2026-08-30
 
@@ -88,6 +89,23 @@
 - застосовувати бібліотеку як reference + prompt-structure layer;
 - наш Learn4Life UX/UI standard та конкретні вимоги до бренду/проєкту мають пріоритет над шаблонами бібліотеки;
 - не копіювати community case буквально, якщо він не відповідає задачі або стилю проєкту.
+
+## video-shotcraft — manual review 2026-09-05
+
+Детальний звіт: `security/reviews/video-shotcraft-2026-09-05.md`.
+
+**Висновок:** явного шкідливого механізму у перевірених файлах не виявлено, але skill має широкий локальний runtime: браузер/Chromium, Remotion, ffmpeg, Python, rsync, dev server, файлові операції та необов'язковий експорт у JianYing/CapCut. Через це статус залишається `TESTING` до SkillSpector scan і нашого контрольованого рендер-тесту.
+
+**Ключові обмеження до APPROVED:**
+
+- тільки некритичний тестовий проєкт або копія;
+- тільки синтетичні/демо-дані для page capture;
+- не передавати `.env`, API keys, credentials або приватні дані;
+- filesystem scope — лише конкретний тестовий video project/workbench;
+- перший тест workbench запускати з `--no-open`;
+- JianYing/CapCut export поки не вмикати;
+- bundled audio використовувати публічно лише після перевірки ліцензії саме вибраного файла;
+- не переводити в `APPROVED`, доки не пройдуть SkillSpector і controlled local render test.
 
 ## Позначення
 
