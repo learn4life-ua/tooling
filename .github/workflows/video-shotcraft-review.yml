@@ -40,9 +40,16 @@ jobs:
         run: python -m pip install ./skillspector-src
 
       - name: Run SkillSpector static scan
+        id: skillspector
+        continue-on-error: true
         run: |
+          set +e
           skillspector scan ./video-shotcraft --no-llm --format json --output skillspector-report.json
+          JSON_RC=$?
           skillspector scan ./video-shotcraft --no-llm --format markdown --output skillspector-report.md
+          MD_RC=$?
+          printf 'json_exit_code=%s\nmarkdown_exit_code=%s\n' "$JSON_RC" "$MD_RC" | tee skillspector-exit-codes.txt
+          exit "$JSON_RC"
 
       - name: Set up Node 22
         uses: actions/setup-node@v4
@@ -67,18 +74,24 @@ jobs:
           ffprobe -v error -show_entries format=duration,size -of default=noprint_wrappers=1 out/control-15s.mp4 | tee ../../render-info.txt
 
       - name: Record checksums
+        if: always()
         run: |
-          sha256sum video-shotcraft/template/out/control-15s.mp4 > render-sha256.txt
+          if [ -s video-shotcraft/template/out/control-15s.mp4 ]; then
+            sha256sum video-shotcraft/template/out/control-15s.mp4 > render-sha256.txt
+          fi
           git -C video-shotcraft rev-parse HEAD > upstream-commit.txt
           git -C skillspector-src rev-parse HEAD > skillspector-commit.txt
 
       - name: Upload review artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: video-shotcraft-review
+          if-no-files-found: warn
           path: |
             skillspector-report.json
             skillspector-report.md
+            skillspector-exit-codes.txt
             render-info.txt
             render-sha256.txt
             upstream-commit.txt
