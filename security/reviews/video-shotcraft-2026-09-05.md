@@ -1,4 +1,4 @@
-# video-shotcraft — manual security review 2026-09-05
+# video-shotcraft — security review 2026-09-05
 
 Repository: https://github.com/Vincentwei1021/video-shotcraft
 Reviewed upstream commit: `5f047c7cfe10d6616fe59160a750fcfaea510b2e`
@@ -40,6 +40,7 @@ Decision: `TESTING`
 - JianYing/CapCut export modules validate draft names to prevent path traversal outside the configured draft root before performing rename/delete operations.
 - No direct reading of environment secrets was found in the reviewed runtime code. The search for `process.env` returned no matches in the repository code examined for the skill runtime.
 - No obvious hidden instruction or prompt-injection mechanism was found in `SKILL.md`; the skill instructions are task-specific and visible.
+- A controlled 15-second Remotion render completed successfully in an isolated GitHub Actions runner.
 
 ## Risks and restrictions
 
@@ -61,29 +62,62 @@ Decision: `TESTING`
 
 9. **Audio licensing is not uniformly clean enough for automatic commercial use.** `assets/audio/ATTRIBUTION.md` explicitly states that several legacy SFX entries have unresolved or unverified provenance and must be checked before commercial use. Therefore do not automatically reuse every bundled audio file in college/public productions.
 
-10. **External dependencies are substantial.** The workbench installs React, Remotion, Three.js, Vite, and related packages; the JianYing path additionally relies on `pyJianYingDraft`, ffmpeg, and platform-specific behavior. Dependency integrity and actual runtime behavior still require controlled testing.
+10. **External dependencies are substantial.** The workbench installs React, Remotion, Three.js, Vite, and related packages; the JianYing path additionally relies on `pyJianYingDraft`, ffmpeg, and platform-specific behavior.
 
-11. **SkillSpector has not been run in this review.** Manual inspection is not a substitute for the required scanner gate in our policy.
+11. **SkillSpector did not complete a valid full scan.** It produced reports but exited with code `2`. The report has `execution_successful=false`, completeness=`failed`, `679` components, `0` fully inspected components, and `0%` coverage due `reference_coverage`, `output_limit`, and `unaccounted_work` failures. Its fail-closed `risk_score=100 / CRITICAL / DO_NOT_INSTALL` is therefore not evidence that the skill is malicious and must not be reported as such.
 
-12. **No controlled end-to-end local test has been completed by us yet.** Upstream CI is useful evidence but does not replace our own test in a disposable project.
+12. **Scanner findings still deserve context review.** The partial report includes patterns such as unversioned `npx` (`RP1`), subprocess execution (`AST4`), external URLs (`E1`), coverage/integrity findings (`AE1`, `AE4`), and missing least-privilege tool declaration (`LP3`). Some are expected for this repo's documented functionality; others are supply-chain or hardening concerns worth retaining.
+
+## Controlled render test — 2026-09-05
+
+Test environment: isolated GitHub Actions runner, no access to the user's local projects or files.
+
+- workflow run: `33975891027`
+- upstream `video-shotcraft`: `5f047c7cfe10d6616fe59160a750fcfaea510b2e`
+- SkillSpector: `7805bb94843d91cb9937f57264ca52642164499b`
+- Node: 22
+- template dependencies installed with `npm ci --ignore-scripts`
+- rendered frames: `0-449`
+- duration: `15.061333 s`
+- resolution: `1920×1080`
+- frame rate: `30 fps`
+- video codec: H.264
+- audio codec: AAC
+- output size: `8,403,104 bytes`
+- SHA-256: `4b1b5c1a3d6910ce376518d8fd6e1e9255c29f95be86a72826dfe60a071bb0cb`
+
+Result: **PASS** for the core Remotion render path.
+
+## SkillSpector attempt — 2026-09-05
+
+The exact reviewed commit was scanned with NVIDIA SkillSpector in static-only mode (`--no-llm`) without API keys.
+
+- JSON exit code: `2`
+- Markdown exit code: `2`
+- report generated: yes
+- `execution_successful`: `false`
+- completeness: `failed`
+- total components: `679`
+- fully inspected: `0`
+- coverage: `0%`
+
+SkillSpector documents exit code `2` as a scan error/internal or input failure, not a completed high-risk verdict. The report failed closed because the repository exceeded/triggered analysis completeness and output/reference-accounting limits. Accordingly, the scanner gate is **attempted but not passed**.
 
 ## Allowed use while status is TESTING
 
 - Use only on a noncritical test project or a copy of a project.
-- Prefer the `guided/co-creation` workflow rather than autonomous execution for the first tests.
+- Prefer the `guided/co-creation` workflow rather than autonomous execution for early use.
 - Restrict capture to localhost or an explicitly approved public/demo URL.
 - Use synthetic/demo data only.
 - Do not provide `.env`, API keys, private GitHub tokens, credentials, or private repository access unless separately reviewed and genuinely necessary.
 - Allow writes only inside the test video project / workbench directories.
 - Prefer `--no-open` for the first workbench test and open the local URL manually.
-- Do not use JianYing/CapCut export during the first controlled test.
+- Do not use JianYing/CapCut export during the first controlled use.
 - Do not use bundled BGM/SFX for public/commercial output until the exact selected files have verified licensing in `ATTRIBUTION.md`.
-- Do not promote to `APPROVED` until SkillSpector and a controlled local render test both pass.
 
-## Next gates
+## Remaining gates
 
-1. Run NVIDIA SkillSpector against the exact reviewed commit or a pinned checkout.
-2. Run a controlled test: clone/pin the repo, install with minimal permissions, render one simple 10–15 second test video from synthetic/local assets, verify generated files and network/process behavior.
-3. Test the Motion Workbench separately with `--no-open` and a disposable project.
-4. Keep JianYing/CapCut export as a separate optional review gate.
-5. If the above pass, update `security/review-log.md` and consider `APPROVED` for the core video workflow only; optional JianYing integration may remain TESTING/ADVANCED independently.
+1. Obtain a complete scanner result by using a documented scoped scan strategy or a SkillSpector configuration/version that can fully account for this repository.
+2. Test the Motion Workbench separately with `--no-open` and a disposable project.
+3. Keep JianYing/CapCut export as a separate optional review gate.
+4. Only after a valid scanner gate should the core video workflow be considered for `APPROVED`; optional JianYing integration may remain `TESTING`/`ADVANCED` independently.
