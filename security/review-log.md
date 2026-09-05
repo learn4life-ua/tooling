@@ -12,7 +12,7 @@
 | Diagram Design | https://github.com/cathrynlavery/diagram-design | ✅ 2026-08-28 | ⏳ | ⏳ | ⏳ | TESTING |
 | Archify | https://github.com/tt-a1i/archify | ✅ 2026-08-30 | ✅ 2026-08-30, з обмеженнями | ⏳ local scan unavailable in current shell | ⚠️ upstream CI passed; local test pending | TESTING |
 | GPT-Image2 Style Library | https://github.com/freestylefly/awesome-gpt-image-2/tree/main/agents/skills/gpt-image-2-style-library | ✅ 2026-08-30 | ✅ 2026-08-30, scoped skill only | ⏳ local scan unavailable in current shell | ⏳ | TESTING |
-| video-shotcraft | https://github.com/Vincentwei1021/video-shotcraft | ✅ 2026-09-05 | ✅ 2026-09-05, з обмеженнями | ⏳ | ⏳ | TESTING |
+| video-shotcraft | https://github.com/Vincentwei1021/video-shotcraft | ✅ 2026-09-05 | ✅ 2026-09-05, з обмеженнями | ⚠️ 2026-09-05: scan attempted, incomplete (exit 2) | ✅ 2026-09-05: 15s render passed | TESTING |
 
 ## Archify — manual review 2026-08-30
 
@@ -90,22 +90,40 @@
 - наш Learn4Life UX/UI standard та конкретні вимоги до бренду/проєкту мають пріоритет над шаблонами бібліотеки;
 - не копіювати community case буквально, якщо він не відповідає задачі або стилю проєкту.
 
-## video-shotcraft — manual review 2026-09-05
+## video-shotcraft — review 2026-09-05
 
 Детальний звіт: `security/reviews/video-shotcraft-2026-09-05.md`.
 
-**Висновок:** явного шкідливого механізму у перевірених файлах не виявлено, але skill має широкий локальний runtime: браузер/Chromium, Remotion, ffmpeg, Python, rsync, dev server, файлові операції та необов'язковий експорт у JianYing/CapCut. Через це статус залишається `TESTING` до SkillSpector scan і нашого контрольованого рендер-тесту.
+**Висновок:** явного шкідливого механізму у перевірених файлах не виявлено. Контрольний рендер ядра пройдено успішно. SkillSpector було запущено на зафіксованому upstream commit, але scanner завершився `exit code 2` і позначив analysis completeness як failed: 679 компонентів, 0 повністю просканованих, coverage 0%. Причини у звіті — `reference_coverage` / `output_limit` та `unaccounted_work` на великому репозиторії. Тому fail-closed `risk_score=100 / CRITICAL / DO_NOT_INSTALL` **не трактуємо як доказ шкідливості**; це результат неповного скану. Статус залишається `TESTING`.
+
+**Controlled render 2026-09-05:**
+
+- ізольований GitHub Actions runner, без доступу до локальних робочих файлів;
+- `video-shotcraft` pinned commit: `5f047c7cfe10d6616fe59160a750fcfaea510b2e`;
+- SkillSpector pinned commit: `7805bb94843d91cb9937f57264ca52642164499b`;
+- Remotion render: 15.061 s, 1920×1080, 30 fps, H.264 video + AAC audio;
+- розмір: 8,403,104 bytes;
+- SHA-256: `4b1b5c1a3d6910ce376518d8fd6e1e9255c29f95be86a72826dfe60a071bb0cb`;
+- workflow run: `33975891027`, completed successfully.
+
+**SkillSpector 2026-09-05:**
+
+- static scan без LLM/API keys;
+- JSON і Markdown запуск повернули `exit code 2`, що у SkillSpector означає scan error, а не high-risk verdict;
+- report generated, але `execution_successful=false`, completeness=`failed`, coverage=0%;
+- знайдені патерни `RP1` (unpinned `npx`), `AST4` (subprocess), `E1` (external URLs), `AE1/AE4`, `LP3` та інші потребують контекстної оцінки; частина відповідає вже відомій функціональності й частина є scanner/coverage findings;
+- до успішного повного/скоупованого scan не вважаємо SkillSpector gate пройденим.
 
 **Ключові обмеження до APPROVED:**
 
 - тільки некритичний тестовий проєкт або копія;
 - тільки синтетичні/демо-дані для page capture;
 - не передавати `.env`, API keys, credentials або приватні дані;
-- filesystem scope — лише конкретний тестовий video project/workbench;
-- перший тест workbench запускати з `--no-open`;
+- filesystem scope — лише конкретний test video project/workbench;
+- перший workbench запускати з `--no-open`;
 - JianYing/CapCut export поки не вмикати;
 - bundled audio використовувати публічно лише після перевірки ліцензії саме вибраного файла;
-- не переводити в `APPROVED`, доки не пройдуть SkillSpector і controlled local render test.
+- core render вважаємо працездатним, але `APPROVED` не надаємо, доки scanner gate не дасть повний результат або не буде формально замінений документованим scoped review.
 
 ## Позначення
 
