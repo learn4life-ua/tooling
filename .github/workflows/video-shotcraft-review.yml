@@ -1,0 +1,87 @@
+name: video-shotcraft security review
+
+on:
+  push:
+    paths:
+      - '.github/workflows/video-shotcraft-review.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout tooling
+        uses: actions/checkout@v4
+
+      - name: Checkout pinned video-shotcraft
+        uses: actions/checkout@v4
+        with:
+          repository: Vincentwei1021/video-shotcraft
+          ref: 5f047c7cfe10d6616fe59160a750fcfaea510b2e
+          path: video-shotcraft
+
+      - name: Checkout pinned SkillSpector
+        uses: actions/checkout@v4
+        with:
+          repository: NVIDIA/SkillSpector
+          ref: 7805bb94843d91cb9937f57264ca52642164499b
+          path: skillspector-src
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install SkillSpector
+        run: python -m pip install ./skillspector-src
+
+      - name: Run SkillSpector static scan
+        run: |
+          skillspector scan ./video-shotcraft --no-llm --format json --output skillspector-report.json
+          skillspector scan ./video-shotcraft --no-llm --format markdown --output skillspector-report.md
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: video-shotcraft/template/package-lock.json
+
+      - name: Install pinned template dependencies
+        working-directory: video-shotcraft/template
+        run: npm ci --ignore-scripts
+
+      - name: Controlled 15-second Remotion render
+        working-directory: video-shotcraft/template
+        run: |
+          mkdir -p out
+          npx remotion render src/index.ts AiflPromo out/control-15s.mp4 \
+            --frames=0-449 \
+            --concurrency=1 \
+            --log=verbose
+          test -s out/control-15s.mp4
+          ffprobe -v error -show_entries format=duration,size -of default=noprint_wrappers=1 out/control-15s.mp4 | tee ../../render-info.txt
+
+      - name: Record checksums
+        run: |
+          sha256sum video-shotcraft/template/out/control-15s.mp4 > render-sha256.txt
+          git -C video-shotcraft rev-parse HEAD > upstream-commit.txt
+          git -C skillspector-src rev-parse HEAD > skillspector-commit.txt
+
+      - name: Upload review artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: video-shotcraft-review
+          path: |
+            skillspector-report.json
+            skillspector-report.md
+            render-info.txt
+            render-sha256.txt
+            upstream-commit.txt
+            skillspector-commit.txt
+            video-shotcraft/template/out/control-15s.mp4
+          retention-days: 14
