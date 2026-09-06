@@ -6,7 +6,7 @@ Scope: перевірено 4 окремі skills із `K-Dense-AI/scientific-ag
 
 **Статус:** TESTING
 
-**Перевірено:** `SKILL.md`, структура skill, bundled Python scripts, характер filesystem access.
+**Перевірено:** `SKILL.md`, структура skill, bundled Python scripts, характер filesystem access, controlled smoke test на GitHub Actions.
 
 **Позитивне:**
 - MIT;
@@ -16,10 +16,21 @@ Scope: перевірено 4 окремі skills із `K-Dense-AI/scientific-ag
 - є обмеження розміру входу/виходу, заборона symlink-input, перевірка suffix, структура fail-closed;
 - skill містить чітку safety boundary: не для ranking людей, admissions, hiring, promotion, tenure, funding, awards, sanctions та інших consequential decisions.
 
+**Controlled test 2026-09-06:**
+- ізольований GitHub Actions runner;
+- upstream pinned commit: `1e5eeffbdad3749125afe7ab48a39694e27f181c`;
+- workflow run: `34018963244`;
+- conclusion: `success`;
+- Python 3.11;
+- upstream `rubric_template.json` успішно пройшов `validate_rubric.py`;
+- синтетичний JSON із полем `candidate_name` був відхилений fail-closed з `PRIVATE_FIELD_NOT_ALLOWED`;
+- symlink input був відхилений з `INPUT_SYMLINK_NOT_ALLOWED`;
+- scoped grep по bundled scripts не виявив `requests`, `urllib`, `httpx`, `aiohttp`, `socket`, `subprocess`, `os.system` або `Popen`.
+
 **Обмеження Learn4Life:**
 - використовувати тільки для developmental review наукової/методичної роботи або низькоризикового process audit;
 - не використовувати як автоматичну оцінку людини, кандидата, викладача чи здобувача освіти;
-- до APPROVED ще потрібні SkillSpector і controlled test.
+- controlled test пройдено, але до `APPROVED` ще потрібен успішний scoped SkillSpector scan.
 
 ## 2. scientific-critical-thinking
 
@@ -90,9 +101,9 @@ Scope: перевірено 4 окремі skills із `K-Dense-AI/scientific-ag
 До core toolchain не додаємо весь `scientific-agent-skills`.
 
 Рекомендований порядок:
-1. `scholar-evaluation` — TESTING;
+1. `scholar-evaluation` — TESTING; controlled test пройдено, SkillSpector pending;
 2. `scientific-critical-thinking` — TESTING;
 3. `citation-management` — ADVANCED;
 4. `literature-review` — ADVANCED.
 
-Жоден із 4 skills не отримує `APPROVED` у цій перевірці, оскільки наш policy вимагає SkillSpector + controlled test перед підвищенням статусу.
+Жоден із 4 skills не отримує `APPROVED` у цій перевірці. Для `scholar-evaluation` runtime gate уже пройдений, але наш policy все ще вимагає SkillSpector перед підвищенням статусу.
