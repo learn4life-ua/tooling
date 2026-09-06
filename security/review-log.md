@@ -4,7 +4,7 @@
 
 | Інструмент | Репозиторій | Source verified | Manual review | SkillSpector | Controlled test | Поточний статус |
 |---|---|---|---|---|---|---|
-| Effective HTML | https://github.com/plannotator/effective-html | ✅ 2026-08-28 | ⏳ | ⏳ | ⏳ | TESTING |
+| Effective HTML | https://github.com/plannotator/effective-html | ✅ 2026-08-28 | ✅ 2026-09-06, scoped `skills/` | ✅ 2026-09-06: 0/100 LOW, SAFE, 17/17, 100%, 0 findings | ✅ 2026-09-06: structural gate passed | APPROVED |
 | Taste Skill | https://github.com/tasteskill/tasteskill | ✅ 2026-08-28 | ⏳ | ⏳ | ⏳ | TESTING |
 | Addy Osmani Agent Skills | https://github.com/addyosmani/agent-skills | ✅ 2026-08-28 | ⏳ | ⏳ | ⏳ | TESTING |
 | NVIDIA SkillSpector | https://github.com/NVIDIA/SkillSpector | ✅ 2026-08-28 | ⏳ | n/a - scanner itself | ⏳ | TESTING |
@@ -13,6 +13,33 @@
 | Archify | https://github.com/tt-a1i/archify | ✅ 2026-08-30 | ✅ 2026-08-30, з обмеженнями | ⏳ local scan unavailable in current shell | ⚠️ upstream CI passed; local test pending | TESTING |
 | GPT-Image2 Style Library | https://github.com/freestylefly/awesome-gpt-image-2/tree/main/agents/skills/gpt-image-2-style-library | ✅ 2026-08-30 | ✅ 2026-08-30, scoped skill only | ⏳ local scan unavailable in current shell | ⏳ | TESTING |
 | video-shotcraft | https://github.com/Vincentwei1021/video-shotcraft | ✅ 2026-09-05 | ✅ 2026-09-05, з обмеженнями | ⚠️ 2026-09-05: scan attempted, incomplete (exit 2) | ✅ 2026-09-05: 15s render passed | TESTING |
+
+## Effective HTML — review 2026-09-06
+
+**Scope:** тільки `plannotator/effective-html/skills` на pinned commit `d95debbaef15af1d201fc6c10c77cf92b524a0d6`; website, examples, screenshots та інші частини репозиторію не входять до approved scope.
+
+**Manual / structural review:**
+
+- набір містить 6 skills: `html`, `design-artifact`, `html-wireframe`, `html-prototype`, `html-plan`, `html-diagram`;
+- у scoped `skills/` є лише Markdown та YAML; executable files не виявлено;
+- root README прямо дозволяє використовувати колекцію без інсталяції, як reference;
+- Codex plugin manifest декларує capability `Write`;
+- `html` вимагає self-contained HTML і за замовчуванням не потребує network/build step;
+- structural controlled test у GitHub Actions пройдено успішно.
+
+**SkillSpector 2026-09-06:**
+
+- workflow run: `34035325814`;
+- SkillSpector pinned commit: `7805bb94843d91cb9937f57264ca52642164499b`;
+- SkillSpector version 2.11.0, `--no-llm`;
+- `execution_successful=true`;
+- risk score `0/100`, severity `LOW`, recommendation `SAFE`;
+- 17/17 components scanned, coverage `100%`, status `complete`;
+- executable scripts: false;
+- findings before/after filtering: `0/0`;
+- JSON і Markdown scans обидва завершилися exit code `0`.
+
+**Рішення:** `APPROVED` для scoped `skills/`. Не трактувати це як approval усього website/demo stack репозиторію. Якщо upstream commit змінюється суттєво, повторити review перед оновленням pinned copy.
 
 ## Archify — manual review 2026-08-30
 
