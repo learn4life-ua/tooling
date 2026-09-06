@@ -1,0 +1,82 @@
+name: Scholar Evaluation Smoke Test
+
+on:
+  push:
+    paths:
+      - '.github/workflows/scholar-evaluation-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout tooling repo
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Checkout pinned K-Dense scientific-agent-skills
+        uses: actions/checkout@v4
+        with:
+          repository: K-Dense-AI/scientific-agent-skills
+          ref: 1e5eeffbdad3749125afe7ab48a39694e27f181c
+          path: upstream
+          persist-credentials: false
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Verify pinned commit
+        run: |
+          test "$(git -C upstream rev-parse HEAD)" = "1e5eeffbdad3749125afe7ab48a39694e27f181c"
+
+      - name: Validate upstream synthetic rubric template
+        working-directory: upstream/skills/scholar-evaluation/scripts
+        run: |
+          python validate_rubric.py \
+            --rubric ../assets/rubric_template.json \
+            --output /tmp/rubric-report.json
+          cat /tmp/rubric-report.json
+
+      - name: Test fail-closed private-field guard
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          src = Path('upstream/skills/scholar-evaluation/assets/rubric_template.json')
+          data = json.loads(src.read_text())
+          data['candidate_name'] = 'Synthetic Person'
+          Path('/tmp/private-field.json').write_text(json.dumps(data))
+          PY
+          set +e
+          (cd upstream/skills/scholar-evaluation/scripts && python validate_rubric.py --rubric /tmp/private-field.json > /tmp/private-field-report.json)
+          code=$?
+          set -e
+          cat /tmp/private-field-report.json
+          test "$code" -eq 2
+          grep -q 'PRIVATE_FIELD_NOT_ALLOWED' /tmp/private-field-report.json
+
+      - name: Test symlink rejection
+        run: |
+          ln -s "$GITHUB_WORKSPACE/upstream/skills/scholar-evaluation/assets/rubric_template.json" /tmp/rubric-link.json
+          set +e
+          (cd upstream/skills/scholar-evaluation/scripts && python validate_rubric.py --rubric /tmp/rubric-link.json > /tmp/symlink-report.json)
+          code=$?
+          set -e
+          cat /tmp/symlink-report.json
+          test "$code" -eq 2
+          grep -q 'INPUT_SYMLINK_NOT_ALLOWED' /tmp/symlink-report.json
+
+      - name: Confirm no network imports in bundled scholar-evaluation scripts
+        run: |
+          if grep -RInE '(^|[[:space:]])(import|from)[[:space:]]+(requests|urllib|httpx|aiohttp|socket)\b|subprocess|os\.system|Popen\(' upstream/skills/scholar-evaluation/scripts; then
+            echo 'Unexpected network/process primitive found in scholar-evaluation scripts.'
+            exit 1
+          fi
+          echo 'No obvious network or subprocess primitives found.'
