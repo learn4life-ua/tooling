@@ -5,7 +5,7 @@
 | Інструмент | Репозиторій | Source verified | Manual review | SkillSpector | Controlled test | Поточний статус |
 |---|---|---|---|---|---|---|
 | Effective HTML | https://github.com/plannotator/effective-html | ✅ 2026-08-28 | ✅ 2026-09-06, scoped `skills/` | ✅ 2026-09-06: 0/100 LOW, SAFE, 17/17, 100%, 0 findings | ✅ 2026-09-06: structural gate passed | APPROVED |
-| Taste Skill | https://github.com/tasteskill/tasteskill | ✅ 2026-08-28 | ⏳ | ⏳ | ⏳ | TESTING |
+| Taste Skill | https://github.com/tasteskill/tasteskill | ✅ 2026-08-28 | ✅ 2026-09-06, scoped `skills/taste-skill` | ✅ 2026-09-06: 8/100 LOW, 1/1, 100%; EA2 false positive manually reviewed | ✅ 2026-09-06: structural gate passed | APPROVED |
 | Addy Osmani Agent Skills | https://github.com/addyosmani/agent-skills | ✅ 2026-08-28 | ⏳ | ⏳ | ⏳ | TESTING |
 | NVIDIA SkillSpector | https://github.com/NVIDIA/SkillSpector | ✅ 2026-08-28 | ⏳ | n/a - scanner itself | ⏳ | TESTING |
 | Understand Anything | https://github.com/labolado/understand-anything | ✅ 2026-08-28 | ⏳ | ⏳ if applicable | ⏳ | TESTING |
@@ -40,6 +40,33 @@
 - JSON і Markdown scans обидва завершилися exit code `0`.
 
 **Рішення:** `APPROVED` для scoped `skills/`. Не трактувати це як approval усього website/demo stack репозиторію. Якщо upstream commit змінюється суттєво, повторити review перед оновленням pinned copy.
+
+## Taste Skill — review 2026-09-06
+
+Детальний звіт: `security/reviews/taste-skill-2026-09-06.md`.
+
+**Scope:** тільки `tasteskill/tasteskill/skills/taste-skill` на pinned commit `37c8c376b92ebc02456f7c70776b514fddda88e1`. Інші варіанти (`gpt-tasteskill`, `image-to-code`, `brutalist`, `brandkit`, image-generation skills тощо) не входять до approved scope.
+
+**Manual / structural review:**
+
+- scoped skill містить лише `SKILL.md`, executable/runtime code відсутній;
+- root `skill.sh` є простим локальним registry helper і не входить до approved scope;
+- upstream README дозволяє копіювати окремий `SKILL.md` без інсталяції всього набору;
+- structural controlled test у GitHub Actions пройдено успішно;
+- жорсткі естетичні правила skill (висока асиметрія, motion, заборона emoji/Inter/centered hero/3-column patterns тощо) не вважаються обов'язковими для Learn4Life.
+
+**SkillSpector 2026-09-06:**
+
+- workflow run: `34035551090`;
+- SkillSpector pinned commit: `7805bb94843d91cb9937f57264ca52642164499b`;
+- SkillSpector version 2.11.0, `--no-llm`;
+- `execution_successful=true`;
+- risk score `8/100`, severity `LOW`;
+- 1/1 component scanned, coverage `100%`;
+- executable scripts: false;
+- один `MEDIUM` finding (EA2) стосувався фрази `Do not ask the user to edit this file`; ручний контекстний review підтвердив, що вона не надає агенту автономних прав на деструктивні чи high-impact дії і є false positive для нашого threat model.
+
+**Рішення:** `APPROVED` тільки для scoped `skills/taste-skill` як допоміжного design-quality layer. Learn4Life UX/UI Standard, явні вимоги користувача, accessibility, performance та чинний design system мають вищий пріоритет за будь-які prescriptive aesthetic rules Taste Skill. При суттєвій зміні upstream commit повторити review.
 
 ## Archify — manual review 2026-08-30
 
