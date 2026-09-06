@@ -36,18 +36,35 @@ Scope: перевірено 4 окремі skills із `K-Dense-AI/scientific-ag
 
 **Статус:** TESTING
 
-**Перевірено:** `SKILL.md`, tool permissions і network requirements.
+**Перевірено:** `SKILL.md`, структура skill, tool permissions, network requirements, усі локальні Markdown references, structural controlled test і scoped SkillSpector scan.
 
 **Позитивне:**
 - MIT;
 - основний workflow аналітичний і не потребує мережі;
 - allowed tools: Read / Write / Edit;
+- у skill немає виконуваних scripts, binaries або інших non-Markdown файлів;
+- structural controlled test 2026-09-06 пройшов успішно;
 - придатний для методологічної критики, bias/confounding, evidence grading, GRADE/Cochrane-style analysis.
+
+**Controlled review 2026-09-06:**
+- ізольований GitHub Actions runner;
+- upstream pinned commit: `1e5eeffbdad3749125afe7ab48a39694e27f181c`;
+- SkillSpector pinned commit: `7805bb94843d91cb9937f57264ca52642164499b`;
+- workflow run: `34030612118`;
+- structural gate: `success`;
+- SkillSpector згенерував report, але повернув `exit code 2`;
+- coverage: 75% (6/8 fully inspected, 2 partially inspected), `execution_successful=false`.
+
+**SkillSpector findings і ручна оцінка:**
+1. `AE1 / HIGH` на `references/scientific_method.md`: scanner позначив Markdown reference як partially inspected через `reference_coverage` / bounded parser limitations. Ручний перегляд повного файла показав звичайні рекомендації з наукового методу; виконуваного коду, мережевих викликів, credentials, shell-команд, destructive actions або hidden control flow немає.
+2. `EA2 / MEDIUM` на `references/statistical_pitfalls.md`: фраза `Using statistical tests without checking assumptions` була класифікована як autonomous decision making. Контекст прямо протилежний: це попередження про необхідність перевіряти припущення моделі. Вважаємо false positive.
+3. Unresolved reference-like items стосуються frontmatter/version text, optional `scientific-schematics` example command і parser ambiguity у descriptive prose; вони не створюють runtime capability цього skill.
 
 **Ризики / обмеження:**
 - optional figures через `scientific-schematics` потребують `OPENROUTER_API_KEY` і outbound access;
 - у Learn4Life не активувати зовнішню генерацію схем автоматично;
-- до APPROVED потрібні SkillSpector і controlled test.
+- базове використання `scientific-critical-thinking` не повинно викликати `scientific-schematics` або OpenRouter без окремої явної потреби;
+- через формально неповний SkillSpector run (`exit 2`, 75% coverage) статус поки не підвищуємо до `APPROVED`, хоча manual review не підтвердив жодного з security findings.
 
 ## 3. citation-management
 
@@ -101,9 +118,9 @@ Scope: перевірено 4 окремі skills із `K-Dense-AI/scientific-ag
 До core toolchain не додаємо весь `scientific-agent-skills`.
 
 Рекомендований порядок:
-1. `scholar-evaluation` — TESTING; controlled test пройдено, SkillSpector pending;
-2. `scientific-critical-thinking` — TESTING;
+1. `scholar-evaluation` — TESTING; controlled test пройдено;
+2. `scientific-critical-thinking` — TESTING; structural test пройдено, findings вручну перевірені як false positive / coverage issues, але scanner gate формально неповний;
 3. `citation-management` — ADVANCED;
 4. `literature-review` — ADVANCED.
 
-Жоден із 4 skills не отримує `APPROVED` у цій перевірці. Для `scholar-evaluation` runtime gate уже пройдений, але наш policy все ще вимагає SkillSpector перед підвищенням статусу.
+Жоден із 4 skills не отримує `APPROVED` автоматично. Для підвищення статусу зберігаємо fail-closed правило: scanner gate має бути успішно завершений або замінений окремим задокументованим винятком політики після повного manual review.
