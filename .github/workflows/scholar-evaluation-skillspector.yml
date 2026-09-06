@@ -1,0 +1,73 @@
+name: Scholar Evaluation SkillSpector
+
+on:
+  push:
+    paths:
+      - '.github/workflows/scholar-evaluation-skillspector.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout tooling
+        uses: actions/checkout@v4
+
+      - name: Checkout pinned K-Dense scientific-agent-skills
+        uses: actions/checkout@v4
+        with:
+          repository: K-Dense-AI/scientific-agent-skills
+          ref: 1e5eeffbdad3749125afe7ab48a39694e27f181c
+          path: scientific-agent-skills
+
+      - name: Checkout pinned SkillSpector
+        uses: actions/checkout@v4
+        with:
+          repository: NVIDIA/SkillSpector
+          ref: 7805bb94843d91cb9937f57264ca52642164499b
+          path: skillspector-src
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install SkillSpector
+        run: python -m pip install ./skillspector-src
+
+      - name: Run scoped SkillSpector scan
+        id: scan
+        continue-on-error: true
+        run: |
+          set +e
+          TARGET=./scientific-agent-skills/skills/scholar-evaluation
+          skillspector scan "$TARGET" --no-llm --format json --output scholar-evaluation-skillspector.json
+          JSON_RC=$?
+          skillspector scan "$TARGET" --no-llm --format markdown --output scholar-evaluation-skillspector.md
+          MD_RC=$?
+          printf 'json_exit_code=%s\nmarkdown_exit_code=%s\n' "$JSON_RC" "$MD_RC" | tee scholar-evaluation-skillspector-exit-codes.txt
+          exit "$JSON_RC"
+
+      - name: Record pinned commits
+        if: always()
+        run: |
+          git -C scientific-agent-skills rev-parse HEAD > k-dense-commit.txt
+          git -C skillspector-src rev-parse HEAD > skillspector-commit.txt
+
+      - name: Upload scan artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scholar-evaluation-skillspector
+          if-no-files-found: warn
+          path: |
+            scholar-evaluation-skillspector.json
+            scholar-evaluation-skillspector.md
+            scholar-evaluation-skillspector-exit-codes.txt
+            k-dense-commit.txt
+            skillspector-commit.txt
+          retention-days: 14
