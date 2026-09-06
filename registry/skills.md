@@ -14,7 +14,7 @@
 
 | Інструмент | Офіційний репозиторій | Власник | Роль | Статус | Примітка |
 |---|---|---|---|---|---|
-| Effective HTML | https://github.com/plannotator/effective-html | plannotator | Прототипування | TESTING | Джерело підтверджене; повний security review ще не завершений |
+| Effective HTML | https://github.com/plannotator/effective-html | plannotator | Прототипування | APPROVED | Scoped review 2026-09-06: manual/structural checks passed; SkillSpector 2.11.0 risk 0/100, LOW/SAFE, 17/17 components, 100% coverage, 0 findings. Використовувати саме `skills/`; repo website/examples не є частиною approved scope |
 | Taste Skill | https://github.com/tasteskill/tasteskill | tasteskill | Design quality | TESTING | Підпорядковується Learn4Life UX/UI Standard; повний security review ще не завершений |
 | Addy Osmani Agent Skills | https://github.com/addyosmani/agent-skills | addyosmani | Engineering workflow | TESTING | Офіційний репозиторій автора підтверджений; використовувати вибрані skills після перевірки |
 | NVIDIA SkillSpector | https://github.com/NVIDIA/SkillSpector | NVIDIA | Security gate для сторонніх skills | TESTING | Офіційний NVIDIA repo підтверджений; сам security-інструмент теж перевіряємо перед довірою |
