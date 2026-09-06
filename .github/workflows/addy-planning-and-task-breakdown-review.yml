@@ -1,0 +1,83 @@
+name: Addy Planning and Task Breakdown Review
+
+on:
+  push:
+    paths:
+      - '.github/workflows/addy-planning-and-task-breakdown-review.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout tooling
+        uses: actions/checkout@v4
+
+      - name: Checkout pinned Addy Agent Skills
+        uses: actions/checkout@v4
+        with:
+          repository: addyosmani/agent-skills
+          ref: 48cb1168aeaaa70dfc2bbf709eddfa2a8ed8129a
+          path: addy-agent-skills
+
+      - name: Checkout pinned SkillSpector
+        uses: actions/checkout@v4
+        with:
+          repository: NVIDIA/SkillSpector
+          ref: 7805bb94843d91cb9937f57264ca52642164499b
+          path: skillspector
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Structural controlled test
+        shell: bash
+        run: |
+          set -euo pipefail
+          target="addy-agent-skills/skills/planning-and-task-breakdown"
+          test -f "$target/SKILL.md"
+          count=$(find "$target" -type f | wc -l | tr -d ' ')
+          test "$count" = "1"
+          find "$target" -type f ! -name 'SKILL.md' -print -quit | grep -q . && exit 1 || true
+          find "$target" -type f -perm /111 -print -quit | grep -q . && exit 1 || true
+          grep -q '^name: planning-and-task-breakdown$' "$target/SKILL.md"
+          grep -q 'Never overwrite an incomplete plan' "$target/SKILL.md"
+
+      - name: Install SkillSpector
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install ./skillspector
+
+      - name: Run scoped SkillSpector scan
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p review-artifacts
+          target="addy-agent-skills/skills/planning-and-task-breakdown"
+          skillspector scan "$target" --no-llm --format json --output review-artifacts/addy-planning-and-task-breakdown-skillspector.json
+          json_exit=$?
+          skillspector scan "$target" --no-llm --format markdown --output review-artifacts/addy-planning-and-task-breakdown-skillspector.md
+          md_exit=$?
+          printf 'json_exit=%s\nmarkdown_exit=%s\n' "$json_exit" "$md_exit" > review-artifacts/addy-planning-and-task-breakdown-exit-codes.txt
+          test "$json_exit" -eq 0
+          test "$md_exit" -eq 0
+
+      - name: Record pinned commits
+        shell: bash
+        run: |
+          git -C addy-agent-skills rev-parse HEAD > review-artifacts/addy-agent-skills-commit.txt
+          git -C skillspector rev-parse HEAD > review-artifacts/skillspector-commit.txt
+
+      - name: Upload review artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: addy-planning-and-task-breakdown-review
+          path: review-artifacts/
+          retention-days: 14
