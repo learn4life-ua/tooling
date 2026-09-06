@@ -1,0 +1,94 @@
+name: Addy Spec-Driven Development Review
+
+on:
+  push:
+    paths:
+      - '.github/workflows/addy-spec-driven-development-review.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  review:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout tooling
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Checkout pinned Addy Agent Skills
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: addyosmani/agent-skills
+          ref: 48cb1168aeaaa70dfc2bbf709eddfa2a8ed8129a
+          path: addy-agent-skills
+          persist-credentials: false
+
+      - name: Checkout pinned SkillSpector
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: NVIDIA/SkillSpector
+          ref: 7805bb94843d91cb9937f57264ca52642164499b
+          path: skillspector-src
+          persist-credentials: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+
+      - name: Structural controlled test
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET=addy-agent-skills/skills/spec-driven-development
+          test -d "$TARGET"
+          test -f "$TARGET/SKILL.md"
+          if find "$TARGET" -type f ! -name '*.md' | grep -q .; then
+            echo 'Unexpected non-Markdown files found:'
+            find "$TARGET" -type f ! -name '*.md'
+            exit 1
+          fi
+          if find "$TARGET" -type f -perm /111 | grep -q .; then
+            echo 'Unexpected executable files found:'
+            find "$TARGET" -type f -perm /111
+            exit 1
+          fi
+          grep -q '^name: spec-driven-development$' "$TARGET/SKILL.md"
+          grep -q 'Write a structured specification before writing any code' "$TARGET/SKILL.md"
+          grep -q 'Never do' "$TARGET/SKILL.md"
+
+      - name: Install SkillSpector
+        run: python -m pip install ./skillspector-src
+
+      - name: Run scoped SkillSpector scan
+        shell: bash
+        run: |
+          set +e
+          TARGET=./addy-agent-skills/skills/spec-driven-development
+          skillspector scan "$TARGET" --no-llm --format json --output addy-spec-driven-development-skillspector.json
+          JSON_RC=$?
+          skillspector scan "$TARGET" --no-llm --format markdown --output addy-spec-driven-development-skillspector.md
+          MD_RC=$?
+          printf 'json_exit_code=%s\nmarkdown_exit_code=%s\n' "$JSON_RC" "$MD_RC" | tee addy-spec-driven-development-exit-codes.txt
+          exit "$JSON_RC"
+
+      - name: Record pinned commits
+        if: always()
+        run: |
+          git -C addy-agent-skills rev-parse HEAD > addy-agent-skills-commit.txt
+          git -C skillspector-src rev-parse HEAD > skillspector-commit.txt
+
+      - name: Upload review artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: addy-spec-driven-development-review
+          path: |
+            addy-spec-driven-development-skillspector.json
+            addy-spec-driven-development-skillspector.md
+            addy-spec-driven-development-exit-codes.txt
+            addy-agent-skills-commit.txt
+            skillspector-commit.txt
+          if-no-files-found: warn
+          retention-days: 14
