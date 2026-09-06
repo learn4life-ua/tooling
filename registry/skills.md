@@ -24,6 +24,15 @@
 | GPT-Image2 Style Library | https://github.com/freestylefly/awesome-gpt-image-2/tree/main/agents/skills/gpt-image-2-style-library | freestylefly | Image prompting & visual style system | TESTING | Використовуємо тільки окремий skill, не весь сайт/repo; шаблони для poster, infographic, UI, illustration, character, brand тощо |
 | video-shotcraft | https://github.com/Vincentwei1021/video-shotcraft | Vincentwei1021 | AI video / motion design / Remotion | TESTING | Джерело підтверджене; skill заявляє підтримку Codex і Claude Code. Перед встановленням потрібні повний security review, перевірка SKILL.md, package/install scripts та контрольований тест |
 
+## Research / academic candidates
+
+| Інструмент | Офіційний репозиторій | Роль | Статус | Примітка |
+|---|---|---|---|---|
+| K-Dense scholar-evaluation | https://github.com/K-Dense-AI/scientific-agent-skills/tree/main/skills/scholar-evaluation | Розвивальний аудит наукових і методичних робіт | TESTING | Локальні Python 3.11+ CLI на standard library; без network, credentials, external models і subprocesses. Не використовувати для ranking людей, admissions, hiring, grants та інших consequential decisions |
+| K-Dense scientific-critical-thinking | https://github.com/K-Dense-AI/scientific-agent-skills/tree/main/skills/scientific-critical-thinking | Критична оцінка наукових тверджень, дизайну досліджень, bias/confounding і якості доказів | TESTING | Основний workflow не потребує мережі; optional scientific-schematics вимагає OpenRouter. Поки використовувати без зовнішньої генерації схем |
+| K-Dense citation-management | https://github.com/K-Dense-AI/scientific-agent-skills/tree/main/skills/citation-management | Пошук, валідація та форматування наукових джерел | ADVANCED | Python + requests; мережеві виклики до OpenAlex, Crossref, PubMed, arXiv, DataCite; Google Scholar потребує scholarly. Підключати лише коли потрібна академічна бібліографія |
+| K-Dense literature-review | https://github.com/K-Dense-AI/scientific-agent-skills/tree/main/skills/literature-review | Систематичні та оглядові дослідження літератури | ADVANCED | Залежить від parallel-web та додаткових scientific skills; optional OPENROUTER_API_KEY. Upstream workflow нав'язує AI-generated figures, тому використовувати лише вибірково й не як дефолтний процес Learn4Life |
+
 ## Advanced / optional
 
 | Інструмент | Роль | Статус | Примітка |
