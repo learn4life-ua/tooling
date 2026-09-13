@@ -21,6 +21,8 @@
 
 ## Структура
 
+- `skills/` — внутрішні skills Learn4Life.
+- `skills/ukrainian-editor/SKILL.md` — нормативне редагування українських текстів і мовний house style.
 - `standards/ux-ui-standard.md` — головний стандарт інтерфейсів.
 - `registry/skills.md` — реєстр дозволених, тестових і відхилених skills.
 - `security/skill-policy.md` — правила безпеки.
