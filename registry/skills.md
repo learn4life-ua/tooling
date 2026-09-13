@@ -13,6 +13,7 @@
 | Skill | Шлях | Роль | Статус | Примітка |
 |---|---|---|---|---|
 | Ukrainian Editor | `skills/ukrainian-editor/SKILL.md` | Нормативне редагування українських текстів | APPROVED | Внутрішній декларативний skill Learn4Life; без executable code, network calls, secrets або runtime dependencies. Орієнтується на чинний стандарт державної мови «Український правопис», офіційне видання 2026, зі збереженням норм редакції 2019 року; house style: не використовувати `—`, для пунктуаційного тире використовувати `–`, дефіс `-` лише за правописом |
+| Lean Coding | `skills/lean-coding/SKILL.md` | Простий, повторно використовуваний і підтримуваний код без зайвого ускладнення | APPROVED | Внутрішній декларативний skill Learn4Life без hooks, executable code, network calls або runtime dependencies. Перед додаванням коду перевіряє наявне рішення в проєкті, стандартній бібліотеці, платформі та встановлених залежностях; correctness, security, accessibility, maintainability і явні вимоги користувача мають вищий пріоритет за мінімізацію коду |
 
 ## Core toolchain
 
@@ -35,7 +36,7 @@
 | Інструмент | Офіційний репозиторій | Власник | Роль | Статус | Примітка |
 |---|---|---|---|---|---|
 | Humanizer | https://github.com/blader/humanizer | blader | Природне редагування AI-текстів | TESTING | Джерело підтверджене 2026-09-13. У Codex базове встановлення й виклик `/humanizer` пройшли успішно. Потрібен повний scoped security review перед `APPROVED`; використовувати разом із внутрішнім `ukrainian-editor` для українських текстів |
-| Ponytail | https://github.com/DietrichGebert/ponytail | DietrichGebert | Мінімізація зайвого коду й повторне використання наявних рішень | TESTING | Джерело підтверджене 2026-09-13. Кандидат для Codex; перед встановленням перевірити `SKILL.md`, plugin/manifest files, scripts, permissions і виконати controlled test |
+| Ponytail | https://github.com/DietrichGebert/ponytail | DietrichGebert | Джерело ідей для мінімізації зайвого коду | REFERENCE | Не встановлювати як Codex plugin у базовий toolchain. Корисні принципи reuse/YAGNI/stdlib/native-first перенесені у внутрішній `lean-coding`; upstream plugin використовує lifecycle hooks і marketplace `ref: main`, тому залишаємо лише як reference |
 | OpenAI Plugins | https://github.com/openai/plugins | OpenAI | Офіційний каталог плагінів і прикладів для агентних workflow | REFERENCE | Не встановлювати весь репозиторій автоматично. Використовувати як офіційне джерело та перевіряти кожен конкретний plugin окремо перед підключенням |
 | Matt Pocock Skills | https://github.com/mattpocock/skills | Matt Pocock | Набір агентних skills; джерело окремих workflow-ідей | REFERENCE | Не додавати весь набір у core toolchain. Окремо розглянути `grill-me` та інші конкретні skills, якщо з'явиться практична потреба |
 | Context Mode | https://github.com/mksglu/context-mode | mksglu | Стиснення контексту та робота з великими agent sessions | ADVANCED | Потенційно корисний для великих репозиторіїв і довгих сесій Codex, але додає runtime/dependency та MCP/hooks complexity. Підключати лише після окремого security review і controlled test |
