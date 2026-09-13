@@ -30,6 +30,16 @@
 | GPT-Image2 Style Library | https://github.com/freestylefly/awesome-gpt-image-2/tree/main/agents/skills/gpt-image-2-style-library | freestylefly | Image prompting & visual style system | TESTING | Використовуємо тільки окремий skill, не весь сайт/repo; шаблони для poster, infographic, UI, illustration, character, brand тощо |
 | video-shotcraft | https://github.com/Vincentwei1021/video-shotcraft | Vincentwei1021 | AI video / motion design / Remotion | TESTING | Джерело підтверджене; skill заявляє підтримку Codex і Claude Code. Перед встановленням потрібні повний security review, перевірка SKILL.md, package/install scripts та контрольований тест |
 
+## Text, coding and agent workflow candidates
+
+| Інструмент | Офіційний репозиторій | Власник | Роль | Статус | Примітка |
+|---|---|---|---|---|---|
+| Humanizer | https://github.com/blader/humanizer | blader | Природне редагування AI-текстів | TESTING | Джерело підтверджене 2026-09-13. У Codex базове встановлення й виклик `/humanizer` пройшли успішно. Потрібен повний scoped security review перед `APPROVED`; використовувати разом із внутрішнім `ukrainian-editor` для українських текстів |
+| Ponytail | https://github.com/DietrichGebert/ponytail | DietrichGebert | Мінімізація зайвого коду й повторне використання наявних рішень | TESTING | Джерело підтверджене 2026-09-13. Кандидат для Codex; перед встановленням перевірити `SKILL.md`, plugin/manifest files, scripts, permissions і виконати controlled test |
+| OpenAI Plugins | https://github.com/openai/plugins | OpenAI | Офіційний каталог плагінів і прикладів для агентних workflow | REFERENCE | Не встановлювати весь репозиторій автоматично. Використовувати як офіційне джерело та перевіряти кожен конкретний plugin окремо перед підключенням |
+| Matt Pocock Skills | https://github.com/mattpocock/skills | Matt Pocock | Набір агентних skills; джерело окремих workflow-ідей | REFERENCE | Не додавати весь набір у core toolchain. Окремо розглянути `grill-me` та інші конкретні skills, якщо з'явиться практична потреба |
+| Context Mode | https://github.com/mksglu/context-mode | mksglu | Стиснення контексту та робота з великими agent sessions | ADVANCED | Потенційно корисний для великих репозиторіїв і довгих сесій Codex, але додає runtime/dependency та MCP/hooks complexity. Підключати лише після окремого security review і controlled test |
+
 ## Research / academic candidates
 
 | Інструмент | Офіційний репозиторій | Роль | Статус | Примітка |
